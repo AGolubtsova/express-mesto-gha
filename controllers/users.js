@@ -1,5 +1,11 @@
 const User = require('../models/user');
 
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  SERVER_ERROR,
+} = require('../errors/errors');
+
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
@@ -7,9 +13,9 @@ module.exports.createUser = (req, res) => {
     .then(user => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы неккоректные данные' });
+        res.status(BAD_REQUEST).send({ message: 'Переданы неккоректные данные' });
       } else {
-        res.status(500).send({ message: 'Ошибка на сервере' });
+        res.status(SERVER_ERROR).send({ message: 'Ошибка на сервере' });
       }
     });
 };
@@ -17,25 +23,28 @@ module.exports.createUser = (req, res) => {
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
+    .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка на сервере' }));
 };
 
 module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
-    .then((user) => {
-      if (!user) {
-        return res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
-      }
-      return res.send(user);
+    .orFail(() => {
+    throw new Error('NotFound');
     })
+    .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы неккоректные данные'});
+      if (err.message === 'NotFound') {
+        res.status(NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
+        return;
       }
-      return res.status(500).send({ message: 'Ошибка на сервере' });
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Введены неккоректные данные' });
+        return;
+      }
+      res.status(SERVER_ERROR).send({ message: 'Ошибка на сервере' });
     });
-};
+  };
 
 module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
@@ -46,15 +55,15 @@ module.exports.updateUser = (req, res) => {
   })
   .then((user) => {
     if (!user) {
-      return res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
+      return res.status(NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
     }
     return res.send({ data: user });
   })
   .catch((err) => {
     if (err.name === 'ValidationError') {
-      return res.status(400).send({ message: 'Переданы неккоректные данные' });
+      return res.status(BAD_REQUEST).send({ message: 'Переданы неккоректные данные' });
     }
-    return res.status(500).send({ message: 'Ошибка на сервере' });
+    return res.status(SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   });
 };
 
@@ -65,14 +74,14 @@ module.exports.updateUserAvatar = (req, res) => {
   })
   .then((user) => {
     if (!user) {
-      return res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
+      return res.status(NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
     }
     return res.send({ data: user });
   })
   .catch((err) => {
     if (err.name === 'ValidationError') {
-      return res.status(400).send({ message: 'Переданы неккоректные данные при обновлении аватара' });
+      return res.status(BAD_REQUEST).send({ message: 'Переданы неккоректные данные при обновлении аватара' });
     }
-    return res.status(500).send({ message: 'Ошибка на сервере' });
+    return res.status(SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   });
 };
