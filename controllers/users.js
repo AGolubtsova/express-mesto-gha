@@ -14,12 +14,7 @@ module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt.hash(password, 10)
     .then(hash => User.create({ name, about, avatar, email, password: hash }))
-    .then(user => {
-      if (validator.isEmail(email) === false) {
-        throw new BadRequestError('Указан неверный email');
-      }
-      res.status(201).send({ user: { name, about, avatar, email } })
-  })
+    .then((user) => res.status(201).send({ name: user.name, about: user.about, avatar: user.avatar, email: user.email }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError({ message: err.message }));
@@ -45,10 +40,6 @@ module.exports.getCurrentUser = (req, res, next) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        next(new NotFoundError('Пользователь по данному id не найден'));
-        return;
-      }
       next(err);
     });
 };
@@ -81,12 +72,11 @@ module.exports.updateUser = (req, res) => {
     new: true,
     runValidators: true,
   })
+  .orFail(() => {
+    next(new NotFoundError('Пользователь по данному id не найден'));
+  })
   .then((user) => res.send({ data: user }))
   .catch((err) => {
-    if (err.message === 'NotFound') {
-      next(new NotFoundError('Пользователь по данному id не найден'));
-      return;
-    }
     if (err.name === 'ValidationError') {
       next(new BadRequestError('Переданы неккоректные данные'));
       return;
@@ -100,18 +90,17 @@ module.exports.updateUserAvatar = (req, res) => {
     new: true,
     runValidators: true,
   })
+  .orFail(() => {
+    next(new NotFoundError('Пользователь по данному id не найден'));
+  })
   .then((user) => res.send({ data: user }))
   .catch((err) => {
     if (err.name === 'ValidationError') {
       next(new BadRequestError('Переданы неккоректные данные при обновлении аватара'));
       return;
     }
-    if (err.message === 'NotFound') {
-      next(new NotFoundError('Пользователь с указанным _id не найден'));
-      return;
-    }
+    next(err);
   });
-  next(err);
 };
 
 module.exports.login = (req, res, next) => {
