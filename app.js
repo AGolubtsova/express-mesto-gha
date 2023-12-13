@@ -1,27 +1,43 @@
 const express = require('express');
-const { PORT = 3000 } = process.env;
-const app = express();
 const mongoose = require('mongoose');
+const helmet = require('helmet');
+const { errors } = require('celebrate');
+const cookieParser = require('cookie-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
-const { NOT_FOUND } = require('./errors/errors');
+//const jwt = require('jsonwebtoken');
+const auth = require('./middlewares/auth');
+const {
+  createUser,
+  login,
+} = require('./controllers/users');
+const responseHandler = require('./middlewares/response-handler');
+const { validateCreateUser, validateLogin } = require('./middlewares/validation');
+const NotFoundError = require('./errors/NotFoundError');
 
+const { PORT = 3000 } = process.env;
+const app = express();
+app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(helmet());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '656ccceaf37bb847e6f20f32'
-  };
-  next();
-});
+app.post('/signin', validateLogin, login);
+app.post('/signup', validateCreateUser,createUser);
+
+app.use(auth);
 
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
+
 app.use('*', (req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
+  next(new NotFoundError('Ресурс не найден'));
 });
+
+// Обработчик ответов
+app.use(errors());
+app.use(responseHandler);
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
   .then(() => {
@@ -31,5 +47,3 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
 app.listen(PORT, () => {
   console.log('Server started on port 3000');
 });
-
-
