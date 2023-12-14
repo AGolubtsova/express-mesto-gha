@@ -80,8 +80,8 @@ module.exports.updateUser = (req, res, next) => {
       next(new BadRequestError('Переданы неккоректные данные'));
       return;
     }
+    next(err);
   });
-  next(err);
 };
 
 module.exports.updateUserAvatar = (req, res, next) => {
