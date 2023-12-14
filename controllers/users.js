@@ -24,7 +24,7 @@ module.exports.createUser = (req, res, next) => {
     })
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
     .catch((err) => { next(err); });
@@ -43,7 +43,7 @@ module.exports.getCurrentUser = (req, res, next) => {
     });
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail(() => {
@@ -63,7 +63,7 @@ module.exports.getUserById = (req, res) => {
     });
   };
 
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
@@ -84,7 +84,7 @@ module.exports.updateUser = (req, res) => {
   next(err);
 };
 
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, {
     new: true,
     runValidators: true,
