@@ -1,19 +1,34 @@
-
-const { SECRET_KEY } = require('../config');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const validator = require('validator');
+const { SECRET_KEY } = require('../config');
 
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
   bcrypt.hash(password, 10)
-    .then(hash => User.create({ name, about, avatar, email, password: hash }))
-    .then((user) => res.status(201).send({ name: user.name, about: user.about, avatar: user.avatar, email: user.email }))
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then((user) => res.status(201).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError({ message: err.message }));
@@ -21,7 +36,7 @@ module.exports.createUser = (req, res, next) => {
         next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       }
       next(err);
-    })
+    });
 };
 
 module.exports.getUsers = (req, res, next) => {
@@ -61,27 +76,27 @@ module.exports.getUserById = (req, res, next) => {
       }
       next(err);
     });
-  };
+};
 
 module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
-  User.findByIdAndUpdate(userId, {name, about}, {
+  User.findByIdAndUpdate(userId, { name, about }, {
     new: true,
     runValidators: true,
   })
-  .orFail(() => {
-    next(new NotFoundError('Пользователь по данному id не найден'));
-  })
-  .then((user) => res.send({ data: user }))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      next(new BadRequestError('Переданы неккоректные данные'));
-      return;
-    }
-    next(err);
-  });
+    .orFail(() => {
+      next(new NotFoundError('Пользователь по данному id не найден'));
+    })
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы неккоректные данные'));
+        return;
+      }
+      next(err);
+    });
 };
 
 module.exports.updateUserAvatar = (req, res, next) => {
@@ -89,17 +104,17 @@ module.exports.updateUserAvatar = (req, res, next) => {
     new: true,
     runValidators: true,
   })
-  .orFail(() => {
-    next(new NotFoundError('Пользователь по данному id не найден'));
-  })
-  .then((user) => res.send({ data: user }))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      next(new BadRequestError('Переданы неккоректные данные при обновлении аватара'));
-      return;
-    }
-    next(err);
-  });
+    .orFail(() => {
+      next(new NotFoundError('Пользователь по данному id не найден'));
+    })
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы неккоректные данные при обновлении аватара'));
+        return;
+      }
+      next(err);
+    });
 };
 
 module.exports.login = (req, res, next) => {

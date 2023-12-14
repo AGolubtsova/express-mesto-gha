@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const { ObjectId } = mongoose.Schema.Types;
 const { isURL } = require('validator');
 
@@ -24,10 +25,10 @@ const cardSchema = new mongoose.Schema({
   },
   likes: [
     {
-    type: ObjectId,
-    ref: 'user',
-    default: [],
-    }
+      type: ObjectId,
+      ref: 'user',
+      default: [],
+    },
   ],
   createdAt: {
     type: Date,

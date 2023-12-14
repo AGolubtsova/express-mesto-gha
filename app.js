@@ -2,10 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
-//const cookieParser = require('cookie-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
-//const jwt = require('jsonwebtoken');
 const auth = require('./middlewares/auth');
 const {
   createUser,
@@ -17,14 +15,13 @@ const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
-//app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 
 app.post('/signin', validateLogin, login);
-app.post('/signup', validateCreateUser,createUser);
+app.post('/signup', validateCreateUser, createUser);
 
 app.use(auth);
 
