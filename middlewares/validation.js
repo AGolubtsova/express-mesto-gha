@@ -7,7 +7,7 @@ const validateCreateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(url_regex),
+    avatar: Joi.string().regex(url_regex),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
@@ -35,14 +35,14 @@ const validateUserInfo = celebrate({
 
 const validateUserAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().pattern(url_regex),
+    avatar: Joi.string().required().regex(url_regex),
   }),
 });
 
 const validateCard = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(url_regex),
+    link: Joi.string().required().regex(url_regex),
   }),
 });
 

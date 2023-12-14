@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
-const cookieParser = require('cookie-parser');
+//const cookieParser = require('cookie-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 //const jwt = require('jsonwebtoken');
@@ -17,7 +17,7 @@ const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
-app.use(cookieParser());
+//app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
