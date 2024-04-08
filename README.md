@@ -1,8 +1,7 @@
 [![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)
 
-# Проект Mesto фронтенд + бэкенд
-
-## [Ссылка на проект] (https://github.com/AGolubtsova/express-mesto-gha)
+# [Проект Mesto](https://github.com/Agolubtsova/express-mesto-gha) фронтенд + бэкенд
+*- это учебный проект по основам backend на курсе "веб-разработчик" в Яндекс.Практикуме (**13-14 спринты**).*
 
 ## Директории
 
